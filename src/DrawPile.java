@@ -5,28 +5,20 @@ public abstract class DrawPile {
 
     private Card[] cards;
     private int position;
+    private boolean shuffleRequired;
     private int cardsLeft;
 
     public DrawPile(int size) {
         cards = new Card[size];
-        position = 0;
+        shuffleRequired = true;
     }
 
     public Card draw() {
-        if(cardsLeft == 0){
-            System.out.println("The draw pile is empty!");
-            return null;
-        }
         cardsLeft--;
         return cards[position++];
     }
 
     public boolean addDeck(int numDecks){
-
-        if(cardsLeft + (52*numDecks) >= cards.length){
-            System.out.println("The draw pile is full!");
-            return false;
-        }
 
         for(int i = numDecks; i > 0; i--){
             for (Suit suit : Suit.values()) {
@@ -40,24 +32,36 @@ public abstract class DrawPile {
     }
 
     public boolean addCard(Card card){
-
-        if(cardsLeft >= cards.length){
-            System.out.println("The draw pile is full!");
-            return false;
-        }
-
         cards[cardsLeft++] = card;
         return true;
     }
 
-    public void Shuffle() {
+    public int getPosition(){
+        return position;
+    }
+
+    public void setShuffleRequired(boolean setting){
+        shuffleRequired = setting;
+    }
+
+    public boolean shuffleRequired(){
+        return shuffleRequired;
+    }
+
+    public void shuffle() {
         Random rnd = ThreadLocalRandom.current();
-        for (int i = cards.length - 1; i > 0; i--) {
-            int index = rnd.nextInt(i + 1);
-            var a = cards[index];
-            cards[index] = cards[i];
-            cards[i] = a;
+
+        for(int j = 0; j < 3; j++){
+            for (int i = cards.length - 1; i > 0; i--) {
+                int index = rnd.nextInt(i + 1);
+                var a = cards[index];
+                cards[index] = cards[i];
+                cards[i] = a;
+            }
         }
+        position = 0;
+        shuffleRequired = false;
+        System.out.println("The draw pile has been shuffled");
     }
 
 }

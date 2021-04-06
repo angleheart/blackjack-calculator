@@ -4,10 +4,10 @@ public enum Suit {
     HEARTS("Hearts"),
     CLUBS("Clubs");
 
-    public final String nameString;
+    public final String name;
 
-    Suit(String label){
-        this.nameString = label;
+    Suit(String name){
+        this.name = name;
     }
 
 }

@@ -1,70 +1,101 @@
+import java.util.ArrayList;
+import java.util.List;
+
 public class Hand {
 
-    private int value;
-    private boolean soft;
-    private boolean splittable;
+    private List<Card> cards;
+    private double betAmount;
+    private boolean doubledDown;
+    private boolean wasStood;
 
-    private Card[] cards;
-    private int totalCards;
-    private DrawPile drawPile;
-
-    public Hand(DrawPile drawPile){
-        this.drawPile = drawPile;
+    public Hand(){
+        cards = new ArrayList<>();
     }
 
-    public void deal(){
-        cards = new Card[32];
-        totalCards = 0;
-
-        cards[0] = hit();
-        cards[1] = hit();
-
-        if(cards[0].icon == cards[1].icon)
-            splittable = true;
+    public Hand(double betAmount){
+        cards = new ArrayList<>();
+        this.betAmount = betAmount;
     }
 
-    //Pass card for first position in cases where we split
-    public void deal(Card card){
-        cards = new Card[32];
-        totalCards = 1;
-        cards[0] = card;
-        cards[1] = hit();
-
-        if(cards[0].icon == cards[1].icon)
-            splittable = true;
-
+    public void dealCard(Card card){
+        cards.add(card);
     }
 
-    public Card hit(){
-        Card newCard = drawPile.draw();
-        cards[totalCards++] = newCard;
-        return newCard;
+    public PlayerHand getIdentity(){
+        boolean soft = false;
+        int hardAces = 0;
+        int value = 0;
+
+        for(Card card : cards){
+            value += card.getIcon().bjValue;
+            if(card.getIcon() == Icon.ACE)
+                hardAces++;
+        }
+
+        while(hardAces > 0 && value > 21){
+            value -= 10;
+            hardAces--;
+        }
+
+        if(hardAces > 0)
+            soft = true;
+
+        //If it is a pair
+        if(cards.size() == 2 && cards.get(0).getIcon() == cards.get(1).getIcon()){
+            for(PlayerHand playerHand : PlayerHand.values()){
+                if(playerHand.tag == 'P' && playerHand.value == value)
+                    return playerHand;
+            }
+        }
+
+        //If it is soft
+        if(soft){
+            for(PlayerHand playerHand : PlayerHand.values()){
+                if(playerHand.tag == 'S' && playerHand.value == value)
+                    return playerHand;
+            }
+        }
+
+        for(PlayerHand playerHand : PlayerHand.values()){
+            if(playerHand.tag == 'H' && playerHand.value == value)
+                return playerHand;
+        }
+
+        if(value > 21)
+            return PlayerHand.BUSTED;
+
+        return PlayerHand.NOT_APPLICABLE;
     }
 
-    public Hand[] split(){
-        Hand newHand = new Hand(drawPile);
-        newHand.deal(cards[1]);
-        cards[1] = hit();
-        totalCards--;
-        return new Hand[] {this, newHand};
-    }
-    
 
-    public int getHandValue(){
-
-
-
+    public List<Card> getCards(){
+        return cards;
     }
 
+    public boolean isDoubledDown(){
+        return doubledDown;
+    }
 
-    private void computeValue(){
+    public boolean isComplete(){
+        return wasStood;
+    }
 
+    public void setComplete(){
+        wasStood = true;
+    }
 
-
+    @Override
+    public String toString(){
+        StringBuilder str = new StringBuilder();
+        str.append(getIdentity());
+        str.append("\n\t\tBet: ");
+        str.append(betAmount);
+        for(Card card : cards){
+            str.append("\n\t\t\t");
+            str.append(card);
+        }
+        return str.toString();
     }
 
 
-
-
-
-}
+    }
