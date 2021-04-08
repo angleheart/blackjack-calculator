@@ -1,4 +1,4 @@
-# blackjack-calculator
+# BlackJack Calculator
 
 A calculator designed to calculate the house edge on a game of blackjack with respect to variations in house rules, betting strategies, and card counting.
 
